@@ -2,7 +2,7 @@
 
 A **Model Context Protocol** (MCP) server in TypeScript — hand-rolled JSON-RPC 2.0 over stdio. Exposes Git repository tools and project resource browsing for AI assistants like Claude.
 
-> Part of a portfolio trifecta: [Go](https://github.com/youruser/mcpserve) · [Python](https://github.com/youruser/mcpserve-py) · **TypeScript**
+> Part of a portfolio trifecta: [Go](https://github.com/devaloi/mcpserve) · [Python](https://github.com/devaloi/mcpserve-py) · **TypeScript**
 
 ## Features
 
@@ -18,7 +18,7 @@ A **Model Context Protocol** (MCP) server in TypeScript — hand-rolled JSON-RPC
 
 ```bash
 # Install
-git clone https://github.com/youruser/mcpserve-ts.git
+git clone https://github.com/devaloi/mcpserve-ts.git
 cd mcpserve-ts
 npm install
 npm run build
@@ -92,10 +92,12 @@ src/
 │   ├── provider.ts       # Resource provider interface
 │   ├── project.ts        # File resources (file:///path)
 │   └── package.ts        # package.json + tree resources
-└── lib/
-    ├── git.ts            # Git CLI wrapper (execFile)
-    ├── sandbox.ts        # Path sandboxing
-    └── schemas.ts        # Zod schemas for tool inputs
+├── lib/
+│   ├── constants.ts      # Shared constants (limits, skip dirs)
+│   ├── git.ts            # Git CLI wrapper (execFile)
+│   ├── sandbox.ts        # Path sandboxing
+│   ├── schemas.ts        # Zod schemas for tool inputs
+│   └── tree.ts           # Shared directory tree builder
 ```
 
 ## MCP Protocol

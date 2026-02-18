@@ -2,12 +2,12 @@ import {
   type JsonRpcRequest,
   type JsonRpcNotification,
   type JsonRpcResponse,
-  MCP_PROTOCOL_VERSION,
   ErrorCode,
   isRequest,
   makeResponse,
   makeErrorResponse,
 } from "./protocol.js";
+import { MCP_PROTOCOL_VERSION } from "./lib/constants.js";
 import { listTools, getTool, zodToJsonSchema } from "./tools/registry.js";
 import type { ResourceProvider } from "./resources/provider.js";
 import type { Logger } from "./config.js";
@@ -101,10 +101,10 @@ export class McpServer {
     id: string | number,
     params: Record<string, unknown>,
   ): Promise<JsonRpcResponse> {
-    const toolName = params.name as string | undefined;
-    if (!toolName) {
+    if (typeof params.name !== "string" || !params.name) {
       return makeErrorResponse(id, ErrorCode.InvalidParams, "Missing tool name");
     }
+    const toolName = params.name;
 
     const tool = getTool(toolName);
     if (!tool) {
@@ -115,7 +115,10 @@ export class McpServer {
       );
     }
 
-    const toolArgs = (params.arguments as Record<string, unknown>) ?? {};
+    const toolArgs =
+      params.arguments != null && typeof params.arguments === "object"
+        ? (params.arguments as Record<string, unknown>)
+        : {};
 
     try {
       const result = await tool.handler(toolArgs, this.options.root);
@@ -138,10 +141,10 @@ export class McpServer {
     id: string | number,
     params: Record<string, unknown>,
   ): Promise<JsonRpcResponse> {
-    const uri = params.uri as string | undefined;
-    if (!uri) {
+    if (typeof params.uri !== "string" || !params.uri) {
       return makeErrorResponse(id, ErrorCode.InvalidParams, "Missing uri");
     }
+    const uri = params.uri;
 
     for (const provider of this.options.resourceProviders) {
       const content = await provider.read(uri);

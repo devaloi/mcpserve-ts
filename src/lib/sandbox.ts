@@ -8,6 +8,8 @@ import fs from "node:fs";
 export function resolveSandboxed(root: string, userPath: string): string {
   const resolved = path.resolve(root, userPath);
   const normalizedRoot = path.resolve(root);
+  // Append path.sep so "/rootdir-evil" doesn't pass for root "/rootdir".
+  // The equality check allows the root itself to be a valid result.
   if (!resolved.startsWith(normalizedRoot + path.sep) && resolved !== normalizedRoot) {
     throw new Error(`Path escapes sandbox: ${userPath}`);
   }

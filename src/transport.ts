@@ -31,11 +31,15 @@ export class StdioTransport {
     rl.on("line", (line: string) => {
       const trimmed = line.trim();
       if (!trimmed) return;
-      void this.processLine(trimmed);
+      this.processLine(trimmed).catch((err) => {
+        console.error("processLine error:", err);
+      });
     });
 
     rl.on("close", () => {
-      process.exit(0);
+      this.output.end(() => {
+        process.exit(0);
+      });
     });
   }
 

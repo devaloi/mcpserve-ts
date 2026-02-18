@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import path from "node:path";
 import { execFile } from "node:child_process";
 import { registerTool } from "./registry.js";
 import { resolveSandboxed, assertFileExists, assertDirExists } from "../lib/sandbox.js";
@@ -8,9 +7,8 @@ import {
   readFileSchema,
   searchFilesSchema,
 } from "../lib/schemas.js";
-
-const SKIP_DIRS = new Set(["node_modules", ".git", "dist", ".next", "__pycache__"]);
-const MAX_FILE_SIZE = 1024 * 1024; // 1 MB
+import { buildTree } from "../lib/tree.js";
+import { MAX_FILE_SIZE, EXEC_TIMEOUT, MAX_BUFFER } from "../lib/constants.js";
 
 export function registerProjectTools(): void {
   registerTool({
@@ -59,14 +57,18 @@ export function registerProjectTools(): void {
 
       const args = ["-r", "-n", "--include", input.glob ?? "*", input.pattern, searchRoot];
       const result = await new Promise<string>((resolve, reject) => {
-        execFile("grep", args, { timeout: 10000, maxBuffer: 512 * 1024 }, (error, stdout) => {
-          if (error && error.code === 1) {
-            // grep returns 1 when no matches
+        execFile("grep", args, { timeout: EXEC_TIMEOUT, maxBuffer: MAX_BUFFER }, (error, stdout, stderr) => {
+          if (error && (error as NodeJS.ErrnoException).code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
+            reject(new Error("Search output too large"));
+            return;
+          }
+          if (error && !error.killed && !stderr) {
+            // exit code 1 with no stderr means no matches
             resolve("");
             return;
           }
           if (error) {
-            reject(new Error(`Search failed: ${error.message}`));
+            reject(new Error(`Search failed: ${stderr || error.message}`));
             return;
           }
           resolve(stdout);
@@ -78,45 +80,4 @@ export function registerProjectTools(): void {
       };
     },
   });
-}
-
-function buildTree(
-  dirPath: string,
-  prefix: string,
-  maxDepth: number,
-  currentDepth: number,
-  lines: string[],
-): void {
-  if (currentDepth >= maxDepth) return;
-
-  let entries: fs.Dirent[];
-  try {
-    entries = fs.readdirSync(dirPath, { withFileTypes: true });
-  } catch {
-    return;
-  }
-
-  entries.sort((a, b) => a.name.localeCompare(b.name));
-
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    if (entry.name.startsWith(".") && entry.isDirectory()) continue;
-    if (SKIP_DIRS.has(entry.name)) continue;
-
-    const isLast = i === entries.length - 1;
-    const connector = isLast ? "└── " : "├── ";
-    const suffix = entry.isDirectory() ? "/" : "";
-    lines.push(`${prefix}${connector}${entry.name}${suffix}`);
-
-    if (entry.isDirectory()) {
-      const newPrefix = prefix + (isLast ? "    " : "│   ");
-      buildTree(
-        path.join(dirPath, entry.name),
-        newPrefix,
-        maxDepth,
-        currentDepth + 1,
-        lines,
-      );
-    }
-  }
 }

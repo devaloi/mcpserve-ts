@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ResourceProvider, ResourceDefinition, ResourceContent } from "./provider.js";
 import { resolveSandboxed } from "../lib/sandbox.js";
+import { SKIP_DIRS } from "../lib/constants.js";
 
 export class ProjectFileProvider implements ResourceProvider {
   constructor(private root: string) {}
@@ -43,19 +44,19 @@ export class ProjectFileProvider implements ResourceProvider {
     depth: number,
   ): string[] {
     if (depth >= maxDepth) return [];
-    const SKIP = new Set(["node_modules", ".git", "dist"]);
     const results: string[] = [];
 
     let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
+    } catch (err) {
+      console.error(`collectFiles: failed to read ${dir}: ${err}`);
       return [];
     }
 
     for (const entry of entries) {
       if (entry.name.startsWith(".")) continue;
-      if (SKIP.has(entry.name)) continue;
+      if (SKIP_DIRS.has(entry.name)) continue;
       const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
       if (entry.isFile()) {
         results.push(rel);

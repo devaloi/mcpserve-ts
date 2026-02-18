@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { EXEC_TIMEOUT, MAX_FILE_SIZE } from "./constants.js";
 
 export interface GitResult {
   stdout: string;
@@ -11,13 +12,13 @@ export interface GitResult {
 export function runGit(
   args: string[],
   cwd: string,
-  timeout = 10000,
+  timeout = EXEC_TIMEOUT,
 ): Promise<GitResult> {
   return new Promise((resolve, reject) => {
     execFile(
       "git",
       args,
-      { cwd, timeout, maxBuffer: 1024 * 1024 },
+      { cwd, timeout, maxBuffer: MAX_FILE_SIZE },
       (error, stdout, stderr) => {
         if (error) {
           reject(new Error(`git ${args[0]} failed: ${stderr || error.message}`));

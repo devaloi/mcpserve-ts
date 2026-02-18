@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { registerTool } from "./registry.js";
 import { runCommandSchema } from "../lib/schemas.js";
+import { EXEC_TIMEOUT, MAX_BUFFER } from "../lib/constants.js";
 
 const ALLOWED_COMMANDS = new Set([
   "ls",
@@ -37,7 +38,7 @@ export function registerShellTools(): void {
         execFile(
           input.command,
           args,
-          { cwd: root, timeout: 10000, maxBuffer: 512 * 1024 },
+          { cwd: root, timeout: EXEC_TIMEOUT, maxBuffer: MAX_BUFFER },
           (error, stdout, stderr) => {
             if (error) {
               reject(new Error(`Command failed: ${stderr || error.message}`));

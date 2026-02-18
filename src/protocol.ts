@@ -1,7 +1,6 @@
 // JSON-RPC 2.0 types and MCP protocol constants
 
 export const JSONRPC_VERSION = "2.0" as const;
-export const MCP_PROTOCOL_VERSION = "2024-11-05";
 
 // --- JSON-RPC 2.0 Error Codes ---
 export const ErrorCode = {

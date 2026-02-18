@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { ResourceProvider, ResourceDefinition, ResourceContent } from "./provider.js";
+import { buildTree } from "../lib/tree.js";
 
 export class PackageResourceProvider implements ResourceProvider {
   constructor(private root: string) {}
@@ -44,49 +45,7 @@ export class PackageResourceProvider implements ResourceProvider {
 
   private readTree(): ResourceContent {
     const lines: string[] = [];
-    this.buildTree(this.root, "", 3, 0, lines);
+    buildTree(this.root, "", 3, 0, lines);
     return { uri: "project:///tree", mimeType: "text/plain", text: lines.join("\n") };
-  }
-
-  private buildTree(
-    dir: string,
-    prefix: string,
-    maxDepth: number,
-    depth: number,
-    lines: string[],
-  ): void {
-    if (depth >= maxDepth) return;
-    const SKIP = new Set(["node_modules", ".git", "dist"]);
-
-    let entries: fs.Dirent[];
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-
-    entries.sort((a, b) => a.name.localeCompare(b.name));
-
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      if (entry.name.startsWith(".") && entry.isDirectory()) continue;
-      if (SKIP.has(entry.name)) continue;
-
-      const isLast = i === entries.length - 1;
-      const connector = isLast ? "└── " : "├── ";
-      const suffix = entry.isDirectory() ? "/" : "";
-      lines.push(`${prefix}${connector}${entry.name}${suffix}`);
-
-      if (entry.isDirectory()) {
-        const newPrefix = prefix + (isLast ? "    " : "│   ");
-        this.buildTree(
-          path.join(dir, entry.name),
-          newPrefix,
-          maxDepth,
-          depth + 1,
-          lines,
-        );
-      }
-    }
   }
 }
