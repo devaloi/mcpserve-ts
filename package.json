@@ -1,0 +1,36 @@
+{
+  "name": "mcpserve-ts",
+  "version": "0.1.0",
+  "description": "A Model Context Protocol server in TypeScript — exposes Git repository tools and project resource browsing",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcpserve-ts": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/ tests/",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["mcp", "model-context-protocol", "typescript", "git", "ai-tools"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "zod": "^3.23"
+  },
+  "devDependencies": {
+    "typescript": "^5.4",
+    "vitest": "^2.0",
+    "@types/node": "^20",
+    "eslint": "^9",
+    "@eslint/js": "^9",
+    "typescript-eslint": "^8"
+  }
+}
