@@ -14,6 +14,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "off",
+    },
+  },
+  {
     ignores: ["dist/", "node_modules/", "vitest.config.ts", "eslint.config.js"],
   },
 );

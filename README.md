@@ -1,5 +1,7 @@
 # mcpserve-ts
 
+[![CI](https://github.com/devaloi/mcpserve-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/devaloi/mcpserve-ts/actions/workflows/ci.yml)
+
 A **Model Context Protocol** (MCP) server in TypeScript — hand-rolled JSON-RPC 2.0 over stdio. Exposes Git repository tools and project resource browsing for AI assistants like Claude.
 
 > Part of a portfolio trifecta: [Go](https://github.com/devaloi/mcpserve) · [Python](https://github.com/devaloi/mcpserve-py) · **TypeScript**
