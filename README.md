@@ -152,3 +152,7 @@ make all            # lint + typecheck + build + test
 ## License
 
 MIT
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). PRs welcome — run `npm test && npm run lint` before submitting.
